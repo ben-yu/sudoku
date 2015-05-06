@@ -4,46 +4,70 @@
 (def board identity)
 
 (defn value-at [board coord]
-  nil)
+  (get-in board coord))
 
 (defn has-value? [board coord]
-  nil)
+  (not (= (value-at board coord) 0)))
 
 (defn row-values [board coord]
-  nil)
+  (set (get board (get coord 0))))
 
 (defn col-values [board coord]
-  nil)
+  (set (map (fn [x] (get x (get coord 1))) board)))
 
 (defn coord-pairs [coords]
-  nil)
+  (for [x coords
+        y coords]
+        [x y]))
 
 (defn block-values [board coord]
-  nil)
+  (let [col-3 (fn [x] (- x (mod x 3)))
+        top-left (map (fn [x] (if (< (col-3 x) 0)
+                                  0
+                                  (col-3 x))) coord)]
+          (set (map (fn [x] (value-at board x))
+           (for [offset (coord-pairs [0 1 2])]
+            (map + top-left offset))))))
 
 (defn valid-values-for [board coord]
-  nil)
+  (if (has-value? board coord) #{}
+    (set/difference
+      (set (range 1 10))
+      (set/union
+        (row-values board coord)
+        (col-values board coord)
+        (block-values board coord)))))
 
 (defn filled? [board]
-  nil)
+  (not (contains? (set (flatten board)) 0)))
 
 (defn rows [board]
-  nil)
+  (map set board))
 
 (defn valid-rows? [board]
-  nil)
+  (and
+    (every? true? (map (fn [x] (= x #{(range 1 10)})) (rows board)))
+    (filled? board)))
 
 (defn cols [board]
-  nil)
+  (map set (for [x (range 0 9)]
+    (col-values board [0 x]))))
 
 (defn valid-cols? [board]
-  nil)
+  (and
+    (every? true? (map (fn [x] (= x #{(range 1 10)})) (cols board)))
+    (filled? board)))
 
 (defn blocks [board]
-  nil)
+  (map set
+    (map
+      (fn [x] (block-values board x))
+      (for [x [1 4 7] y [1 4 7]] [x y]))))
 
 (defn valid-blocks? [board]
-  nil)
+  (and
+    (every? true? (map (fn [x] (= x #{(range 1 10)})) (blocks board)))
+    (filled? board)))
 
 (defn valid-solution? [board]
   nil)
