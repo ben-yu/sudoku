@@ -46,7 +46,7 @@
 
 (defn valid-rows? [board]
   (and
-    (every? true? (map (fn [x] (= x #{(range 1 10)})) (rows board)))
+    (every? true? (map (fn [x] (= x (set (range 1 10)))) (rows board)))
     (filled? board)))
 
 (defn cols [board]
@@ -55,7 +55,7 @@
 
 (defn valid-cols? [board]
   (and
-    (every? true? (map (fn [x] (= x #{(range 1 10)})) (cols board)))
+    (every? true? (map (fn [x] (= x (set (range 1 10)))) (cols board)))
     (filled? board)))
 
 (defn blocks [board]
@@ -66,17 +66,24 @@
 
 (defn valid-blocks? [board]
   (and
-    (every? true? (map (fn [x] (= x #{(range 1 10)})) (blocks board)))
+    (every? true? (map (fn [x] (= x (set (range 1 10)))) (blocks board)))
     (filled? board)))
 
 (defn valid-solution? [board]
-  nil)
+  ((every-pred valid-rows? valid-cols? valid-blocks?) board))
 
 (defn set-value-at [board coord new-value]
-  nil)
+  (assoc-in board coord new-value))
 
 (defn find-empty-point [board]
-  nil)
+  (first (remove #(has-value? board %) (coord-pairs (range 9)))))
 
 (defn solve [board]
-  nil)
+  (if (filled? board)
+    (if (valid-solution? board)
+      board
+      '[])
+    (let [empty-loc (find-empty-point board)]
+      (for [valid-val (valid-values-for board empty-loc)
+            solution (solve (set-value-at board empty-loc valid-val))]
+        solution))))
